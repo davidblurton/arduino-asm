@@ -3,11 +3,12 @@
 
 .include "./m328Pdef.inc"
 
+.def overflows = r17
+
 .ORG 0000
 Setup:
 	ldi r16, 0b00100000
 	out DDRB, r16           ;Set PB5 to output
-    out PortB, r16          ;Set PB5 to high
 
     ldi r16, (1<<COM0A0)|(1<<WGM01)   ; CTC mode
     out TCCR0A, r16
@@ -18,22 +19,30 @@ Setup:
     ldi r16, 255            ;Set overflow to 255
     out OCR0A, r16
 
+    clr overflows
+
 Start:
+    rcall Pause
+	rjmp Start
+
+Pause:
+    in r16, TIFR0            ;read the Timer Interrupt Flag Register
+    sbrs r16, OCF0A          ;test the overflow flag
+    ret                      ;return if not set
+
+    ldi r16, 0b00000010      ;reset timer
+    out TIFR0, r16
+
+    inc overflows
+    cpi overflows, 61
+    brne Start                ;skip next line if equal
+
+    clr overflows
+
+    ; Toggle the LED
     ldi r16, 0b00100000
     in r24, PortB
     eor r24, r16
     out PortB, r24
 
-    rcall Pause
-	rjmp Start
-
-Pause:
-Plupe:
-    in r16, TIFR0            ;WAIT FOR TIMER
-    ANDI r16, 0b00000010
-
-    BREQ Plupe
-
-    ldi r16, 0b00000010      ;RESET FLAG
-    out TIFR0, r16           ;NOTE: WRITE A 1 (NOT ZERO)
     ret
