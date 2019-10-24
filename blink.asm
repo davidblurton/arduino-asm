@@ -10,14 +10,9 @@
 .equ OVERFLOW_COUNT = 61        ; (16000000/1024)/(255*61) ~ 1Hz
 
 .org 0000
-rjmp Setup
-
-.org 0x0020
-rjmp TimerOverflow
-
 Setup:
-	ldi temp, (1 << PORTB5)
-	out DDRB, temp              ; set PB5 to output
+    ldi temp, (1 << PORTB5)
+    out DDRB, temp              ; set PB5 to output
 
     ldi temp, (1 << CS00) | (1 << CS02)
     out TCCR0B, temp            ; set the Clock Selector Bits CS00, CS01, CS02 to 101
@@ -30,8 +25,9 @@ Setup:
     sei                         ; enable global interrupts
 
 Start:
-	rjmp Start
+    rjmp Start
 
+.org 0x0020
 TimerOverflow:
     inc overflow_counter
     cpi overflow_counter, OVERFLOW_COUNT
