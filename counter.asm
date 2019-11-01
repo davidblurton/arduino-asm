@@ -4,7 +4,6 @@
 .include "./m328Pdef.inc"
 
 .def temp = r16
-.def port_mask = r17
 .def counter = r18
 
 Setup:
@@ -14,8 +13,8 @@ Setup:
     ldi temp, (1 << TOIE1)          ; set the Timer Overflow Interrupt Enable (TOIE1) bit
     sts TIMSK1, temp                ; of the Timer Interrupt Mask Register (TIMSK1)
 
-    ldi port_mask, 0b11111111       ; set all PortB to output
-    out DDRB, port_mask
+    ldi temp, 0b11111111       ; set all PortB to output
+    out DDRB, temp
 
     sei
 
